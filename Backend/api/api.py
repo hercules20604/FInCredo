@@ -1,6 +1,8 @@
+from flask import Flask, jsonify
 import yfinance as yf
 
-# NSE Stock symbols
+app = Flask(__name__)
+
 STOCKS = {
     "RELIANCE": "Reliance Industries Limited",
     "HDFCBANK": "HDFC Bank Limited",
@@ -13,7 +15,6 @@ STOCKS = {
     "HINDUNILVR": "Hindustan Unilever Limited",
     "BAJFINANCE": "Bajaj Finance Limited",
 }
-
 
 def get_stock_data():
     results = []
@@ -32,7 +33,6 @@ def get_stock_data():
                 "day_low": info.get("dayLow"),
                 "volume": info.get("lastVolume"),
             })
-
         except Exception as e:
             results.append({
                 "symbol": symbol,
@@ -46,8 +46,13 @@ def get_stock_data():
         "data": results
     }
 
+@app.route("/")
+def home():
+    return jsonify({"message": "API is running"})
 
-# Test
+@app.route("/stocks")
+def stocks():
+    return jsonify(get_stock_data())
+
 if __name__ == "__main__":
-    response = get_stock_data()
-    print(response)
+    app.run(host="0.0.0.0", port=5000)
