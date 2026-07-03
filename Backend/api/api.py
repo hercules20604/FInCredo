@@ -1,8 +1,7 @@
 import yfinance as yf
-import pandas as pd
 
 # NSE Stock symbols
-stocks = {
+STOCKS = {
     "RELIANCE": "Reliance Industries Limited",
     "HDFCBANK": "HDFC Bank Limited",
     "BHARTIARTL": "Bharti Airtel Limited",
@@ -12,38 +11,43 @@ stocks = {
     "INFY": "Infosys Limited",
     "LT": "Larsen & Toubro Limited",
     "HINDUNILVR": "Hindustan Unilever Limited",
-    "BAJFINANCE": "Bajaj Finance Limited"
+    "BAJFINANCE": "Bajaj Finance Limited",
 }
 
-results = []
 
-for symbol, company in stocks.items():
-    ticker = yf.Ticker(symbol + ".NS")
-    info = ticker.fast_info
+def get_stock_data():
+    results = []
 
-    try:
-        current_price = info.get("lastPrice")
-        previous_close = info.get("previousClose")
-        day_high = info.get("dayHigh")
-        day_low = info.get("dayLow")
-        volume = info.get("lastVolume")
+    for symbol, company in STOCKS.items():
+        try:
+            ticker = yf.Ticker(f"{symbol}.NS")
+            info = ticker.fast_info
 
-        results.append({
-            "Symbol": symbol,
-            "Company": company,
-            "Current Price": current_price,
-            "Previous Close": previous_close,
-            "Day High": day_high,
-            "Day Low": day_low,
-            "Volume": volume
-        })
+            results.append({
+                "symbol": symbol,
+                "company": company,
+                "current_price": info.get("lastPrice"),
+                "previous_close": info.get("previousClose"),
+                "day_high": info.get("dayHigh"),
+                "day_low": info.get("dayLow"),
+                "volume": info.get("lastVolume"),
+            })
 
-    except Exception as e:
-        print(f"Error fetching {symbol}: {e}")
+        except Exception as e:
+            results.append({
+                "symbol": symbol,
+                "company": company,
+                "error": str(e)
+            })
 
-df = pd.DataFrame(results)
+    return {
+        "success": True,
+        "count": len(results),
+        "data": results
+    }
 
-print(df)
 
-# Optional: Save to CSV
-df.to_csv("nse_stock_prices.csv", index=False)
+# Test
+if __name__ == "__main__":
+    response = get_stock_data()
+    print(response)
